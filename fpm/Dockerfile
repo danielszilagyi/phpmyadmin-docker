@@ -7,7 +7,7 @@ ENV UPLOAD_PROGRESS_SHA256="fe3f6cdfcedad563c970c4fd1cda31e422cfc0df5cc9a217d8c8
 # Install dependencies
 RUN set -ex; \
     \
-    apt-get update; \
+    apt-get update && apt-get -y upgrade; \
     apt-get install -y --no-install-recommends \
         gnupg \
         dirmngr \
