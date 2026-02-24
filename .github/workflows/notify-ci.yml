@@ -24,7 +24,7 @@ jobs:
               {
                 event_type: "dep_changed",
                 client_payload: {
-                  dep: "docker-socket-proxy",
+                  dep: "phpmyadmin",
                   ref: "master",
                   sha: $sha
                 }
