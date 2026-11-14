@@ -12,6 +12,7 @@ RUN set -ex; \
     apt-get install -y --no-install-recommends \
         gnupg \
         dirmngr \
+        git \
     ; \
     \
     savedAptMark="$(apt-mark showmanual)"; \
@@ -154,6 +155,11 @@ RUN --mount=type=bind,from=composer/composer:2-bin,source=/composer,target=/usr/
     find /var/www/html -type d -exec chmod 555 {} \;; \
     find /var/www/html -type f -exec chmod 444 {} \;; \
     chmod 1777 /var/www/html/tmp;
+
+# Git is only needed to resolve phpMyAdmin's Composer VCS repository.
+USER root
+RUN apt-get purge -y --auto-remove git
+USER www-data:www-data
 
 # Copy configuration
 COPY --chown=www-data:www-data config.inc.php /etc/phpmyadmin/config.inc.php
