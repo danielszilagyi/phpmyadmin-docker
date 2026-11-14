@@ -149,7 +149,7 @@ RUN --mount=type=bind,from=composer/composer:2-bin,source=/composer,target=/usr/
     php -l /var/www/html/libraries/vendor_config.php; \
     cd /var/www/html; \
     COMPOSER_HOME=/tmp/composer-home COMPOSER_CACHE_DIR=/tmp/composer-cache \
-        composer update twig/twig symfony/cache symfony/expression-language \
+        php -d allow_url_fopen=1 /usr/local/bin/composer update twig/twig symfony/cache symfony/expression-language \
             --no-dev --no-scripts --no-plugins --no-interaction --no-progress \
             --prefer-dist --with-all-dependencies --minimal-changes; \
     php -r 'require "vendor/autoload.php"; foreach (["twig/twig" => "3.27.0", "symfony/cache" => "5.4.52", "symfony/expression-language" => "5.4.54"] as $name => $minimum) { $version = \Composer\InstalledVersions::getVersion($name); if (!$version || version_compare($version, $minimum, "<")) { fwrite(STDERR, "$name $version needs >= $minimum\n"); exit(1); } }'; \
