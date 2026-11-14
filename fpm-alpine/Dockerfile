@@ -112,7 +112,7 @@ LABEL org.opencontainers.image.title="Official phpMyAdmin Docker image" \
 
 # Download and verify the signed phpMyAdmin tarball, then refresh vulnerable bundled dependencies
 RUN --mount=type=bind,from=composer/composer:2-bin,source=/composer,target=/usr/local/bin/composer,ro \
-    --mount=type=cache,target=/tmp/composer-cache,uid=33,gid=33 \
+    --mount=type=cache,target=/tmp/composer-cache,uid=82,gid=82 \
     set -ex; \
     \
     export GNUPGHOME="$(mktemp -d)"; \
