@@ -9,7 +9,8 @@ ENV UPLOAD_PROGRESS_SHA256="fe3f6cdfcedad563c970c4fd1cda31e422cfc0df5cc9a217d8c8
 RUN apk add --no-cache \
     bash \
     tzdata \
-    gnupg
+    gnupg \
+    git
 
 # Install dependencies
 RUN set -ex; \
@@ -143,6 +144,11 @@ RUN --mount=type=bind,from=composer/composer:2-bin,source=/composer,target=/usr/
     find /var/www/html -type d -exec chmod 555 {} \;; \
     find /var/www/html -type f -exec chmod 444 {} \;; \
     chmod 1777 /var/www/html/tmp;
+
+# Git is only needed to resolve phpMyAdmin's Composer VCS repository.
+USER root
+RUN apk del git
+USER www-data:www-data
 
 # Copy configuration
 COPY --chown=www-data:www-data config.inc.php /etc/phpmyadmin/config.inc.php
