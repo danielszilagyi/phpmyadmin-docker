@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # DO NOT EDIT: created by update.sh from Dockerfile-debian.template
 FROM php:8.3-apache
 
@@ -123,8 +124,10 @@ LABEL org.opencontainers.image.title="Official phpMyAdmin Docker image" \
     org.opencontainers.image.url="https://github.com/phpmyadmin/docker#readme" \
     org.opencontainers.image.source="https://github.com/phpmyadmin/docker.git"
 
-# Download tarball, verify it using gpg and extract
-RUN set -ex; \
+# Download and verify the signed phpMyAdmin tarball, then refresh vulnerable bundled dependencies
+RUN --mount=type=bind,from=composer/composer:2-bin,source=/composer,target=/usr/local/bin/composer,ro \
+    --mount=type=cache,target=/tmp/composer-cache,uid=33,gid=33 \
+    set -ex; \
     export GNUPGHOME="$(mktemp -d)"; \
     export GPGKEY="3D06A59ECE730EB71B511C17CE752F178259BD92"; \
     curl -fsSL -o phpMyAdmin.tar.xz $URL; \
@@ -144,6 +147,13 @@ RUN set -ex; \
     sed -i "s@'configFile' => .*@'configFile' => '/etc/phpmyadmin/config.inc.php',@" /var/www/html/libraries/vendor_config.php; \
     grep -q -F "'configFile' => '/etc/phpmyadmin/config.inc.php'," /var/www/html/libraries/vendor_config.php; \
     php -l /var/www/html/libraries/vendor_config.php; \
+    cd /var/www/html; \
+    COMPOSER_HOME=/tmp/composer-home COMPOSER_CACHE_DIR=/tmp/composer-cache \
+        composer update twig/twig symfony/cache symfony/expression-language \
+            --no-dev --no-scripts --no-plugins --no-interaction --no-progress \
+            --prefer-dist --with-all-dependencies --minimal-changes; \
+    php -r 'require "vendor/autoload.php"; foreach (["twig/twig" => "3.27.0", "symfony/cache" => "5.4.52", "symfony/expression-language" => "5.4.54"] as $name => $minimum) { $version = \Composer\InstalledVersions::getVersion($name); if (!$version || version_compare($version, $minimum, "<")) { fwrite(STDERR, "$name $version needs >= $minimum\n"); exit(1); } }'; \
+    rm -rf /tmp/composer-home; \
     find /var/www/html -type d -exec chmod 555 {} \;; \
     find /var/www/html -type f -exec chmod 444 {} \;; \
     chmod 1777 /var/www/html/tmp;
