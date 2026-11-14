@@ -45,7 +45,8 @@ function create_variant() {
 	mkdir -p "$variant"
 
 	local template="Dockerfile-${base[$variant]}.template"
-	echo "# DO NOT EDIT: created by update.sh from $template" > "$variant/Dockerfile"
+	echo "# syntax=docker/dockerfile:1" > "$variant/Dockerfile"
+	echo "# DO NOT EDIT: created by update.sh from $template" >> "$variant/Dockerfile"
 	cat "$template" >> "$variant/Dockerfile"
 
 	# Replace Dockerfile variables
